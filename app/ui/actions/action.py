@@ -1,7 +1,6 @@
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from ...utils.fileHandler import FileHandler
-from ..widgets.displaylist import FileList
 
 
 class OpenFileAction(QAction):
@@ -15,7 +14,7 @@ class OpenFileAction(QAction):
     def handle_open_file(self):
         file_path = FileHandler.open_file(self.parent)
         file_content = FileHandler.read_file(file_path)
-        self.parent.file_viewer.display_file_content(file_content)
+        self.parent.file_viewer.display_file_content(file_content, file_path)
         self.parent.file_list.add_file_to_list(file_path)
     
 

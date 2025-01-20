@@ -11,10 +11,11 @@ class FileHandler:
 
 
     @staticmethod
-    def read_file(file_path) -> str:
+    def read_file(file_path: str) -> str:
         try:
             with open(file_path, mode='r', encoding="Utf-8") as f:
                 return f.read()
 
         except Exception as e:
             raise IOError(f"Failed to read file: {e}")
+

@@ -20,7 +20,7 @@ class FileList(QListWidget):
     def display_content(self, item) -> None:
         item_path = item.data(Qt.ItemDataRole.UserRole)
         file_content = FileHandler.read_file(item_path)
-        self.parent.file_viewer.display_file_content(file_content)
+        self.parent.file_viewer.display_file_content(file_content, item_path)
 
 
     def add_file_to_list(self, file_path) -> None:

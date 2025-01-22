@@ -1,6 +1,7 @@
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from ...utils.fileHandler import FileHandler
+from ...utils.databaseHandler import DatabaseHandler
 
 
 class OpenFileAction(QAction):
@@ -11,22 +12,34 @@ class OpenFileAction(QAction):
         self.triggered.connect(self.handle_open_file)
 
 
-    def handle_open_file(self):
-        file_path = FileHandler.open_file(self.parent)
-        file_content = FileHandler.read_file(file_path)
-        self.parent.file_viewer.display_file_content(file_content, file_path)
-        self.parent.file_list.add_file_to_list(file_path)
+    def handle_open_file(self) -> None:
+        file_path = FileHandler.get_open_file(self.parent)
+        if file_path:
+            file_content = FileHandler.read_file(file_path)
+            self.parent.file_viewer.display_file_content(file_content, file_path)
+            self.parent.file_list.add_file_to_list(file_path)
+        else:
+            return
     
 
 
-class ConnectDatabaseAction(QAction):
+class OpenDatabaseAction(QAction):
     def __init__(self, parent=None) -> None:
-        super().__init__(text="Connect database", parent=parent)
+        super().__init__(text="Open database file", parent=parent)
+        self.parent = parent
         self.setShortcut("Ctrl+D")
+        self.triggered.connect(self.handle_open_database)
 
 
-    def connect_database(self) -> None:
-        return
+    def handle_open_database(self) -> None:
+        file_path = DatabaseHandler.get_open_file(self.parent)
+        if file_path:
+            conn = DatabaseHandler.connect_database(file_path)
+            tables = DatabaseHandler.get_database_tables(conn)
+            self.parent.file_list.add_tables_to_list(tables, file_path)
+            conn.close()
+        else:
+            return
 
 
 

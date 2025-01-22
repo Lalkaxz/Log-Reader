@@ -1,13 +1,12 @@
 import sys
-import sqlite3
 from PyQt6.QtWidgets import QFileDialog
 
 class FileHandler:
     
     @staticmethod
-    def open_file(parent) -> str:
-        fname, _ = QFileDialog.getOpenFileName(parent, "Open file", ".", "Text files (*.txt);; Log files(*.log) ")
-        return fname
+    def get_open_file(parent) -> str:
+        fpath, _ = QFileDialog.getOpenFileName(parent, "Open file", ".", "Text files (*.txt);; Log files(*.log) ")
+        return fpath
 
 
     @staticmethod
@@ -17,5 +16,5 @@ class FileHandler:
                 return f.read()
 
         except Exception as e:
-            raise IOError(f"Failed to read file: {e}")
+            print(f"Failed to read file: {e}")
 

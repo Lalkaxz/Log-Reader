@@ -12,8 +12,11 @@ class OpenFileAction(QAction):
         self.triggered.connect(self.handle_open_file)
 
 
-    def handle_open_file(self) -> None:
-        file_path = FileHandler.get_open_file(self.parent)
+    def handle_open_file(self, file_path: str = None) -> None:
+
+        if not file_path:
+            file_path = FileHandler.get_open_file(self.parent)
+
         if file_path:
             file_content = FileHandler.read_file(file_path)
             self.parent.file_viewer.display_file_content(file_content, file_path)
@@ -31,8 +34,11 @@ class OpenDatabaseAction(QAction):
         self.triggered.connect(self.handle_open_database)
 
 
-    def handle_open_database(self) -> None:
-        file_path = DatabaseHandler.get_open_file(self.parent)
+    def handle_open_database(self, file_path: str = None) -> None:
+
+        if not file_path:
+            file_path = DatabaseHandler.get_open_file(self.parent)
+
         if file_path:
             conn = DatabaseHandler.connect_database(file_path)
             tables = DatabaseHandler.get_database_tables(conn)

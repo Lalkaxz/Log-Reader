@@ -1,11 +1,18 @@
 import sys
 from PyQt6.QtWidgets import QFileDialog
 
+
 class FileHandler:
-    
+    last_opened_dir = ""
+
     @staticmethod
     def get_open_file(parent) -> str:
-        fpath, _ = QFileDialog.getOpenFileName(parent, "Open file", ".", "Text files (*.txt);; Log files(*.log) ")
+        start_dir = FileHandler.last_opened_dir or "."
+
+        fpath, _ = QFileDialog.getOpenFileName(parent, "Open file", start_dir, "Text files (*.txt);; Log files(*.log) ")
+        if fpath:
+            FileHandler.last_opened_dir = fpath.rsplit("/", 1)[0]
+
         return fpath
 
 

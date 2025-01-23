@@ -3,11 +3,18 @@ import sys
 from PyQt6.QtWidgets import QFileDialog
 import pandas as pd
 
+
 class DatabaseHandler:
+    last_opened_dir = ""
 
     @staticmethod
     def get_open_file(parent) -> str:
-        fpath, _ = QFileDialog.getOpenFileName(parent, "Open file", ".", "Database files (*.db *.sqlite *.sqlite3 *.db3)")
+        start_dir = DatabaseHandler.last_opened_dir or "."
+
+        fpath, _ = QFileDialog.getOpenFileName(parent, "Open file", start_dir, "Database files (*.db *.sqlite *.sqlite3 *.db3)")
+        if fpath:
+            DatabaseHandler.last_opened_dir = fpath.rsplit("/", 1)[0]
+
         return fpath
 
 

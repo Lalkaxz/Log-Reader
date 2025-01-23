@@ -31,8 +31,7 @@ class FileList(QListWidget):
             item_path = item.data(Qt.ItemDataRole.UserRole)
             item_connect = DatabaseHandler.connect_database(item_path)
             table_content = DatabaseHandler.get_database_data(item_connect, item.text())
-            self.parent.table_viewer.display_table_content(table_content)
-
+            self.parent.table_viewer.display_table_content(data=table_content, conn=item_connect, table_name=item.text())
 
 
     def add_file_to_list(self, file_path: str) -> None:
@@ -42,12 +41,13 @@ class FileList(QListWidget):
         item = QListWidgetItem(item_name)
         item.setData(Qt.ItemDataRole.UserRole, file_path)
         item.setData(Qt.ItemDataRole.UserRole + 1, type)
-        
+
         for existing_item in self.findItems(item.text(), Qt.MatchFlag.MatchExactly):
             if item.text() == existing_item.text():
                 return
         
         self.addItem(item)
+        self.setCurrentItem(item)
 
     
     def add_tables_to_list(self, tables: list[str], file_path: str) -> None:

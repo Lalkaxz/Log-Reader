@@ -1,8 +1,10 @@
 from PyQt6.QtWidgets import  QPlainTextEdit, QTableView, QAbstractItemView, QHeaderView
 from PyQt6.QtCore import QTimer, QAbstractTableModel
 from ...utils.fileHandler import FileHandler
+from ...utils.databaseHandler import DatabaseHandler
 from PyQt6.QtCore import Qt
 import pandas as pd
+import sqlite3
 
 
 
@@ -37,7 +39,7 @@ class FileViewer(QPlainTextEdit):
 
 
 
-    def update_file_content(self):
+    def update_file_content(self) -> None:
         file_content = FileHandler.read_file(self.file_path)
 
         if self.toPlainText() != file_content:
@@ -59,16 +61,34 @@ class TableViewer(QTableView):
         self.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
-        self.setGridStyle(Qt.PenStyle.SolidLine)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_table_content)
 
 
-    def display_table_content(self, data: pd.DataFrame) -> None:
+    def display_table_content(self, data: pd.DataFrame, conn: sqlite3.Connection, table_name: str) -> None:
+        self.conn = conn
+        self.table_name = table_name
+
+
+        if not self.timer.isActive:
+            self.timer.stop()
+
         self.setModel(TableModel(data))
         if self.isHidden():
             self.show()
 
         self.parent.file_viewer.hide()
         self.resize(500, self.height())
+        self.timer.start(1000)
+
+
+    def update_table_content(self) -> None:
+        table_data = DatabaseHandler.get_database_data(db=self.conn, table=self.table_name)
+        
+        if not self.model()._data.equals(table_data):
+            self.model()._data = table_data
+            self.model().layoutChanged.emit()
+
 
 
 

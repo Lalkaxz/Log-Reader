@@ -15,7 +15,6 @@ class MenuBar(QMenuBar):
         self.file_menu.addAction(OpenDatabaseAction(parent))
         self.file_menu.addAction(ExitAppAction(parent))
 
-
         self.edit_menu = self.addMenu("Edit")
 
         self.copy_action = QAction("Copy", self, shortcut=QKeySequence.StandardKey.Copy, triggered=self.handle_copy)

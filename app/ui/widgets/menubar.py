@@ -1,6 +1,5 @@
 from PyQt6.QtWidgets import QMenuBar
-from PyQt6.QtGui import *
-from ..actions.action import OpenFileAction, OpenDatabaseAction, ExitAppAction
+from PyQt6.QtGui import QAction, QKeySequence
 from .dialogs import FindDialog
 
 class MenuBar(QMenuBar):
@@ -11,9 +10,9 @@ class MenuBar(QMenuBar):
 
         self.file_menu = self.addMenu("File")
 
-        self.file_menu.addAction(OpenFileAction(parent))
-        self.file_menu.addAction(OpenDatabaseAction(parent))
-        self.file_menu.addAction(ExitAppAction(parent))
+        self.file_menu.addAction(self.parent.open_file_action)
+        self.file_menu.addAction(self.parent.open_database_action)
+        self.file_menu.addAction(self.parent.exit_app_action)
 
         self.edit_menu = self.addMenu("Edit")
 

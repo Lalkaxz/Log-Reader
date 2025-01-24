@@ -67,4 +67,3 @@ class DatabaseHandler:
 
         return data
 
-        

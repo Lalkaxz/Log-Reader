@@ -6,44 +6,41 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QCheckBox,
-    QGroupBox,
-    QRadioButton,
-    QButtonGroup,
 )
+from PyQt6.QtGui import QTextDocument, QTextCursor, QCloseEvent
+from .content_viewer import FileViewer, TableViewer
+from ...utils.errorHandler import ErrorHandler
 from PyQt6.QtCore import Qt
 
 
 class FindDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.parent = parent
 
-        self.setWindowTitle("Найти")
+        self.text_viewer: FileViewer  = self.parent.file_viewer
+        self.table_viewer: TableViewer = self.parent.table_viewer
+
+        self.setWindowTitle("Find")
         self.setFixedSize(400, 125)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowContextHelpButtonHint)
 
-        # Widgets
         self.label = QLabel("Что:")
         self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("Введите текст для поиска")
+        self.search_input.setPlaceholderText("Enter text")
 
-        self.case_sensitive_checkbox = QCheckBox("С учетом регистра")
-        self.wrap_text_checkbox = QCheckBox("Обтекание текстом")
+        self.case_sensitive_checkbox = QCheckBox("Match Case")
+        self.wrap_text_checkbox = QCheckBox("Match whole word")
 
-        self.direction_group = QGroupBox("Направление")
-        self.direction_up = QRadioButton("Вверх")
-        self.direction_down = QRadioButton("Вниз")
-        self.direction_down.setChecked(True)
-
-        direction_layout = QHBoxLayout()
-        direction_layout.addWidget(self.direction_up)
-        direction_layout.addWidget(self.direction_down)
-        self.direction_group.setLayout(direction_layout)
-
-        self.find_button = QPushButton("Найти далее")
+        self.find_button = QPushButton("Find Next")
         self.find_button.setEnabled(False)
-        self.cancel_button = QPushButton("Отмена")
+        self.find_button.clicked.connect(self.handle_find)
 
-        # Layouts
+        self.cancel_button = QPushButton("Cancel")
+        self.cancel_button.clicked.connect(self.handle_cancel)
+
+
+
         input_layout = QHBoxLayout()
         input_layout.addWidget(self.label)
         input_layout.addWidget(self.search_input)
@@ -58,7 +55,6 @@ class FindDialog(QDialog):
 
         main_layout = QHBoxLayout()
         main_layout.addLayout(options_layout)
-        main_layout.addWidget(self.direction_group)
         main_layout.addLayout(buttons_layout)
 
         final_layout = QVBoxLayout()
@@ -67,33 +63,46 @@ class FindDialog(QDialog):
 
         self.setLayout(final_layout)
 
-        # Signals
         self.search_input.textChanged.connect(self.toggle_find_button)
 
-        # Stylesheet for matching appearance
-        self.setStyleSheet("""
-            QDialog {
-                background-color: #F0F0F0;
-            }
-            QLabel, QCheckBox, QRadioButton, QGroupBox {
-                font-size: 10pt;
-            }
-            QLineEdit {
-                border: 1px solid #A9A9A9;
-                padding: 4px;
-            }
-            QPushButton {
-                min-height: 25px;
-                background-color: #E1E1E1;
-                border: 1px solid #A9A9A9;
-            }
-            QPushButton:disabled {
-                background-color: #F5F5F5;
-                color: #A9A9A9;
-                border: 1px solid #D3D3D3;
-            }
-        """)
 
-    def toggle_find_button(self):
-        """Enable/Disable the Find button based on input text."""
-        self.find_button.setEnabled(bool(self.search_input.text().strip()))
+    def toggle_find_button(self) -> None:
+        self.find_button.setEnabled(bool(self.search_input.text()))
+
+    
+    def handle_find(self) -> None:
+        flags = QTextDocument.FindFlag(0)
+        
+
+        search_text = self.search_input.text()
+
+        if self.case_sensitive_checkbox.isChecked():
+            flags |= (QTextDocument.FindFlag.FindCaseSensitively)
+
+        if self.wrap_text_checkbox.isChecked():
+            flags |= (QTextDocument.FindFlag.FindWholeWords)
+
+        if not self.text_viewer.isHidden():
+            exists = self.text_viewer.find(search_text, flags)
+
+
+            if not exists:
+                self.text_viewer.moveCursor(QTextCursor.MoveOperation.Start)
+                self.text_viewer.find(search_text, flags) 
+                ErrorHandler.show_info_message(content=f'Text "{search_text}" not found', parent=self.parent)
+
+        elif not self.table_viewer.isHidden():
+            self.table_viewer.reset_highlight()
+            self.table_viewer.search_in_table(search_text)
+        
+
+    def handle_cancel(self) -> None:
+        self.close()
+
+
+    def closeEvent(self, e: QCloseEvent):
+        self.table_viewer.reset_row_visibility()
+        self.table_viewer.reset_highlight()
+
+        e.accept()
+

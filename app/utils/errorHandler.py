@@ -12,3 +12,13 @@ class ErrorHandler:
         msg.setWindowTitle(title)
         msg.setStandardButtons(QMessageBox.StandardButton.Ok)
         msg.exec()
+
+
+    @staticmethod
+    def show_info_message(content: str, parent: QWidget = None, title: str = "Info") -> None:
+        msg = QMessageBox(parent)
+        msg.setIcon(QMessageBox.Icon.Information)
+        msg.setText(content)
+        msg.setWindowTitle(title)
+        msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+        msg.exec()

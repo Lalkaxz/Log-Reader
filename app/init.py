@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QApplication
 from .ui.main_window import MainWindow
 import sys
 
-def run():
+def run() -> None:
     
     app: QApplication = QApplication(sys.argv)
 

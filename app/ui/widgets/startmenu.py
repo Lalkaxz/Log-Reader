@@ -7,6 +7,7 @@ class StartMenu(QWidget):
         super().__init__(parent)
         self.parent = parent
 
+        # Initialize drag & drop zone widget.
         self.drag_and_drop_widget = DragAndDropWidget(self.parent)
 
         self.main_layout = QHBoxLayout()
@@ -21,13 +22,12 @@ class DragAndDropWidget(QLabel):
         super().__init__(parent)
         self.setText("Drag and drop files here")
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         self.setStyleSheet(
             """
             QLabel {
                 border: 2px dashed #aaa;
                 border-radius: 10px;
-                background-color: #f9f9f9;
-                color: #555;
                 font-size: 16px;
                 padding: 20px;
             }

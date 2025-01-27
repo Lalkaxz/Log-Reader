@@ -25,22 +25,24 @@ class FindDialog(QDialog):
         self.setFixedSize(400, 125)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowContextHelpButtonHint)
 
-        self.label = QLabel("Что:")
+        # Initialize dialog widgets.
+        self.label = QLabel("Text:")
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Enter text")
 
         self.case_sensitive_checkbox = QCheckBox("Match Case")
         self.wrap_text_checkbox = QCheckBox("Match whole word")
 
+        # Initialize Push Button, call function when clicked.
         self.find_button = QPushButton("Find Next")
         self.find_button.setEnabled(False)
         self.find_button.clicked.connect(self.handle_find)
-
+        
+        # Initialize Cancel Push Button, call function when clicked.
         self.cancel_button = QPushButton("Cancel")
         self.cancel_button.clicked.connect(self.handle_cancel)
 
-
-
+        # Initialize layouts.
         input_layout = QHBoxLayout()
         input_layout.addWidget(self.label)
         input_layout.addWidget(self.search_input)
@@ -62,19 +64,18 @@ class FindDialog(QDialog):
         final_layout.addLayout(main_layout)
 
         self.setLayout(final_layout)
-
+        # Call function if input text is changed.
         self.search_input.textChanged.connect(self.toggle_find_button)
 
-
+    # If input text is not empty, set enabled button.
     def toggle_find_button(self) -> None:
         self.find_button.setEnabled(bool(self.search_input.text()))
 
-    
+    # Handler find action.
     def handle_find(self) -> None:
-        flags = QTextDocument.FindFlag(0)
-        
-
         search_text = self.search_input.text()
+        # Creating flags list. Checking checkbox, add flags to list if checkbox enabled.
+        flags = QTextDocument.FindFlag(0)
 
         if self.case_sensitive_checkbox.isChecked():
             flags |= (QTextDocument.FindFlag.FindCaseSensitively)
@@ -82,27 +83,24 @@ class FindDialog(QDialog):
         if self.wrap_text_checkbox.isChecked():
             flags |= (QTextDocument.FindFlag.FindWholeWords)
 
-        if not self.text_viewer.isHidden():
-            exists = self.text_viewer.find(search_text, flags)
+        # If current viewer widget is text viewer.
+        if self.parent.splitter.viewer_widget.currentWidget() == self.text_viewer:
+            self.text_viewer.search_in_file(search_text, flags)
 
-
-            if not exists:
-                self.text_viewer.moveCursor(QTextCursor.MoveOperation.Start)
-                self.text_viewer.find(search_text, flags) 
-                ErrorHandler.show_info_message(content=f'Text "{search_text}" not found', parent=self.parent)
-
-        elif not self.table_viewer.isHidden():
-            self.table_viewer.reset_highlight()
+        # If current viewer widget is database table viewer.
+        else:
             self.table_viewer.search_in_table(search_text)
         
-
+    # Handler cancel action.
     def handle_cancel(self) -> None:
         self.close()
 
-
-    def closeEvent(self, e: QCloseEvent):
-        self.table_viewer.reset_row_visibility()
-        self.table_viewer.reset_highlight()
-
+    # Handler close event.
+    def closeEvent(self, e: QCloseEvent) -> None:
+        # If current viewer widget is database table viewer.
+        if self.parent.splitter.viewer_widget.currentWidget() == self.table_viewer:
+            # Reset highlight and show all table rows.
+            self.table_viewer.reset_row_visibility()
+            self.table_viewer.reset_highlight()
         e.accept()
 

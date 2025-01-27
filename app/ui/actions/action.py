@@ -43,7 +43,7 @@ class OpenDatabaseAction(QAction):
             file_path = DatabaseHandler.get_open_file(self.parent)
 
         if file_path:
-            conn = DatabaseHandler.connect_database(file_path) # Connect to database.
+            conn = DatabaseHandler.connect_database(self.parent, file_path) # Connect to database.
             if conn == None: 
                 return
             tables = DatabaseHandler.get_database_tables(self.parent, conn) # Get list tables.

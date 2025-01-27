@@ -109,29 +109,37 @@ class TableViewer(QTableView):
 
     # Find text table and hide rows that do not contain need text.
     def search_in_table(self, search_text: str) -> None:
-        self.reset_highlight() # Clear all highlights.
+        self.reset_highlight()  # Clear all highlights.
         search_text = search_text.lower()
-        
-        row_contains_text = False # Flag to track if text found.
+
+        any_row_found = False # Flag to track if text found in any rows.
 
         # Check all table item and compare it with searched text. 
         for row in range(self.model().rowCount(QModelIndex())):
+            row_contains_text = False  # Flag to track if text found in current row.
+
             for col in range(self.model().columnCount(QModelIndex())):
                 index = self.model().index(row, col)
                 item = self.model().data(index, Qt.ItemDataRole.DisplayRole)
+                
                 # If text is found, stop searching and change flag.
                 if search_text in str(item).lower():
                     row_contains_text = True
-                    break
-            # Hide row if its do not contain need text.
-            self.setRowHidden(row, not row_contains_text)
-        
+                    break  # No need to search further in this row
+
+            self.setRowHidden(row, not row_contains_text)  # Hide row if it doesn't contain the search text.
+
+            # If the current row contains text, change flag.
+            if row_contains_text:
+                any_row_found = True
+
+        # Show highlight for found text
         self.show_search_highlight(search_text)
 
-        if not row_contains_text:
+        # If the text is not found, reset the visibility rows and show a message.
+        if not any_row_found:
             self.reset_row_visibility()
             self.reset_highlight()
-            
             ErrorHandler.show_info_message(content=f'Text "{search_text}" not found', parent=self.parent)
 
     # Highlight cell that do contain need text.
@@ -145,7 +153,7 @@ class TableViewer(QTableView):
                 item = self.model().data(index, Qt.ItemDataRole.DisplayRole)
                 if search_text in str(item).lower():
                     self.highlight_cell(index) 
-                    break
+
 
     # Highlight cell with required index.
     def highlight_cell(self, index: QModelIndex) -> None:
@@ -171,7 +179,7 @@ class TableModel(QAbstractTableModel):
         self._highlighted_cells = {}  # Dict to track highlighted cells.
 
     # Get data for a specific cell based on the role.
-    def data(self, index, role) -> str | any:
+    def data(self, index, role):
         if role == Qt.ItemDataRole.DisplayRole:
             # Return the cell value as a string for display.
             value = self._data.iloc[index.row(), index.column()]

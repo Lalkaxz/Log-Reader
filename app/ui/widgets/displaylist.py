@@ -59,11 +59,11 @@ class FileList(QListWidget):
         else:
             # Get database path, connect to it, then get table content and display its.
             item_path = item.data(Qt.ItemDataRole.UserRole)
-            item_connect = DatabaseHandler.connect_database(item_path)
+            item_connect = DatabaseHandler.connect_database(self.parent, item_path)
             if item_connect == None:
                 return
-            table_content = DatabaseHandler.get_database_data(item_connect, item.text())
-            if table_content == None:
+            table_content = DatabaseHandler.get_database_data(self.parent, item_connect, item.text())
+            if table_content is None:
                 return
             self.parent.table_viewer.display_table_content(data=table_content, conn=item_connect, table_name=item.text())
 

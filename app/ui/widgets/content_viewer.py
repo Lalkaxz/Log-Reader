@@ -38,7 +38,9 @@ class FileViewer(QPlainTextEdit):
     # Update text on widget if file is changed.
     def update_file_content(self) -> None:
         # Get current text from file.
-        file_content = FileHandler.read_file(self.parent, self.file_path) 
+        file_content = FileHandler.read_file(self.parent, self.file_path)
+        if not file_content:
+            return
 
         if self.toPlainText() != file_content:
             # Save the current scroll positions
@@ -53,13 +55,13 @@ class FileViewer(QPlainTextEdit):
 
     # Search text in widget content.
     def search_in_file(self, search_text: str, flags: QTextDocument.FindFlag) -> None:
-        found = self.text_viewer.find(search_text, flags)
+        found = self.find(search_text, flags)
         # If input text not found.
         if not found:
             # Move cursor to start of the text.
-            self.text_viewer.moveCursor(QTextCursor.MoveOperation.Start)
+            self.moveCursor(QTextCursor.MoveOperation.Start)
             # Start search from the start.
-            found = self.text_viewer.find(search_text, flags) 
+            found = self.find(search_text, flags) 
             if not found:
                 ErrorHandler.show_info_message(content=f'Text "{search_text}" not found', parent=self.parent)
             

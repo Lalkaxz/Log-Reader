@@ -19,6 +19,8 @@ class OpenFileAction(QAction):
 
         if file_path:
             file_content = FileHandler.read_file(self.parent, file_path) # Read file content from path.
+            if not file_content:
+                return
             self.parent.file_viewer.display_file_content(file_content, file_path) # Display file content on file viewer widget.
             self.parent.file_list.add_file_to_list(file_path) # Add file to display list.
         else:
